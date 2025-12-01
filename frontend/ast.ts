@@ -15,11 +15,11 @@ export type NodeType =
 //x=119 --assignment expression in c, cpp, java -evaluate to 119  but in python its a statement
 
 export interface Stmt {
-  type: NodeType;
+  kind: NodeType;
 }
 
 export interface Program extends Stmt {
-  type: "Program";
+  kind: "Program";
   body: Stmt[];
 }
 
@@ -34,11 +34,13 @@ export interface BinaryExpr extends Expr {
 }
 
 export interface Identifier extends Expr {
+  //foo
   kind: "Identifier";
   symbol: string;
 }
 
 export interface NumericLiteral extends Expr {
+  //675
   kind: "NumericLiteral";
   value: Number;
 }

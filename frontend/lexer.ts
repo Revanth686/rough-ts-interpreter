@@ -1,6 +1,10 @@
+// -----------------------------------
+// -------------     Lexer         ---------
+// ------   Produces tokens from the source code   -----
+// -----------------------------------
+
 import { readFileSync } from "fs";
 
-console.log("hello world");
 //Let x = 112
 //[LetToken, IdentifierToken("x"), EqualToken, NumberToken(112)]
 
@@ -15,6 +19,8 @@ export enum TokenType {
 
   Let,
   for,
+
+  EOF, //end of file- invisible last char in a file
 }
 
 export interface Token {
@@ -45,6 +51,8 @@ function isskippable(src: string): Boolean {
 }
 
 export function tokenize(sourceCode: string): Token[] {
+  console.log(`Tokenizing source code...`, sourceCode);
+
   const tokens: Token[] = [];
 
   let src = sourceCode.split("");
@@ -96,13 +104,14 @@ export function tokenize(sourceCode: string): Token[] {
       }
     }
   }
+  tokens.push({ value: "EndOfFile", type: TokenType.EOF });
 
   return tokens;
 }
 
-const sourceCode = readFileSync("test.rv", "utf8");
-console.log("Tokenizing lexer.ts...");
-for (const token of tokenize(sourceCode)) {
-  console.log(token);
-}
-console.log("Done");
+// const sourceCode = readFileSync("test.rv", "utf8");
+// console.log("Tokenizing ...");
+// for (const token of tokenize("11")) {
+//   console.log(token);
+// }
+// console.log("Done");
