@@ -9,18 +9,19 @@ import { readFileSync } from "fs";
 //[LetToken, IdentifierToken("x"), EqualToken, NumberToken(112)]
 
 export enum TokenType {
+  //literal types
   Number,
-  Equals,
   Identifier,
-  OpenParen,
-  CloseParen,
   Null,
 
-  BinaryOperator,
-
+  //keywords
   Let,
   for,
 
+  Equals,
+  OpenParen,
+  CloseParen,
+  BinaryOperator,
   EOF, //end of file- invisible last char in a file
 }
 
