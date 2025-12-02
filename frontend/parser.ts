@@ -22,6 +22,20 @@ export default class Parser {
     return prev;
   }
 
+  private expect(expectedType: TokenType, err: any) {
+    const prev = this.tokens.shift() as Token;
+    if (!prev || prev.type != expectedType) {
+      console.error(
+        "Parser Error:\n",
+        err,
+        prev,
+        " - Expecting: ",
+        expectedType,
+      );
+      process.exit(1);
+    }
+  }
+
   public produceAST(sourceCode: string): Program {
     console.log("Producing AST...", sourceCode);
     this.tokens = tokenize(sourceCode);
@@ -57,10 +71,29 @@ export default class Parser {
   //2.unary expr
   //1.primary expr
   private parse_additive_expr(): BinaryExpr {
-    let left = this.parse_primary_expr();
+    let left = this.parse_multiplicative_expr(); //bcoz * more precedence and must be parsed b4 + or -
     while (
       (this.at().type == TokenType.BinaryOperator && this.at().value == "-") ||
       this.at().value == "+"
+    ) {
+      const operator = this.eat().value;
+      const right = this.parse_multiplicative_expr();
+      left = {
+        kind: "BinaryExpr",
+        left,
+        right,
+        operator,
+      } as BinaryExpr;
+    }
+    return left as BinaryExpr;
+  }
+
+  private parse_multiplicative_expr(): BinaryExpr {
+    let left = this.parse_primary_expr();
+    while (
+      (this.at().type == TokenType.BinaryOperator && this.at().value == "*") ||
+      this.at().value == "/" ||
+      this.at().value == "%"
     ) {
       const operator = this.eat().value;
       const right = this.parse_primary_expr();
@@ -78,6 +111,7 @@ export default class Parser {
     //most basic expr: identifiers and literals
     const tk = this.at().type;
 
+    //TODO: handle boolean, null token
     switch (tk) {
       case TokenType.Identifier: {
         return { kind: "Identifier", symbol: this.eat().value } as Identifier;
@@ -89,6 +123,17 @@ export default class Parser {
           value: parseFloat(this.eat().value),
         } as NumericLiteral;
       }
+
+      case TokenType.OpenParen: {
+        this.eat(); // open paren
+        let value = this.parse_expr();
+        this.expect(
+          TokenType.CloseParen,
+          "Unexpected token found inside parenthesised expression. Expected closing parenthesis.",
+        ); // if not close paren throw error
+        return value;
+      }
+
       default: {
         console.error(
           "Unexpected token during parsing: " + JSON.stringify(this.at()),
