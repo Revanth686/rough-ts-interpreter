@@ -14,6 +14,7 @@ export enum TokenType {
   Identifier,
   OpenParen,
   CloseParen,
+  Null,
 
   BinaryOperator,
 
@@ -30,6 +31,7 @@ export interface Token {
 
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
+  null: TokenType.Null,
 };
 
 //helper function to create tokens
@@ -51,7 +53,7 @@ function isskippable(src: string): Boolean {
 }
 
 export function tokenize(sourceCode: string): Token[] {
-  console.log(`Tokenizing source code...`, sourceCode);
+  // console.log(`Tokenizing source code...`, sourceCode);
 
   const tokens: Token[] = [];
 
@@ -91,9 +93,12 @@ export function tokenize(sourceCode: string): Token[] {
         }
 
         const reservedToken = KEYWORDS[ident]; //let for fn
-        if (reservedToken == undefined)
+        if (typeof reservedToken == "number")
+          tokens.push(token(ident, reservedToken));
+        else {
+          // Unreconized name must mean user defined symbol.
           tokens.push(token(ident, TokenType.Identifier));
-        else tokens.push(token(ident, reservedToken));
+        }
       }
 
       //skip whitespace

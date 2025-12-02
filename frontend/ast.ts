@@ -1,5 +1,6 @@
 // -----------------------------------
 // ------------- AST (Abstract Syntax Tree) Types ---------
+// ------     Types for the AST nodes       -----
 // ------ Defines the stucture of our language's AST -----
 // -----------------------------------
 
@@ -7,7 +8,8 @@ export type NodeType =
   | "Program"
   | "NumericLiteral"
   | "BinaryExpr"
-  | "Identifier";
+  | "Identifier"
+  | "NullLiteral";
 
 //NOTE: currently statement doesn't return anything
 //but in some REPL's statements evaluate to *undefined*
@@ -43,4 +45,10 @@ export interface NumericLiteral extends Expr {
   //675
   kind: "NumericLiteral";
   value: Number;
+}
+
+export interface NullLiteral extends Expr {
+  //null
+  kind: "NullLiteral";
+  value: "null";
 }

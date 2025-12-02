@@ -5,6 +5,7 @@ import {
   type BinaryExpr,
   type Identifier,
   type NumericLiteral,
+  type NullLiteral,
 } from "./ast.js";
 import { tokenize, type Token, TokenType } from "./lexer";
 
@@ -122,6 +123,14 @@ export default class Parser {
           kind: "NumericLiteral",
           value: parseFloat(this.eat().value),
         } as NumericLiteral;
+      }
+
+      case TokenType.Null: {
+        this.eat();
+        return {
+          kind: "NullLiteral",
+          value: "null",
+        } as NullLiteral;
       }
 
       case TokenType.OpenParen: {

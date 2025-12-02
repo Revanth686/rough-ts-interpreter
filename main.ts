@@ -1,5 +1,6 @@
 import Parser from "./frontend/parser";
 import readline from "readline";
+import evaluate from "./runtime/interpreter";
 
 function repl() {
   const parser = new Parser();
@@ -17,7 +18,11 @@ function repl() {
     // console.log(`entered ${input} parsing...`);
 
     const program = parser.produceAST(input);
-    console.log(JSON.stringify(program));
+    // console.log("program: ", JSON.stringify(program));
+
+    const interpretedVal = evaluate(program);
+    console.log(interpretedVal);
+
     rl.close();
   });
 }
