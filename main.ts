@@ -14,10 +14,10 @@ function repl() {
   rl.question("> ", (input) => {
     if (!input || input == "exit") process.exit();
 
-    console.log(`entered ${input} parsing...`);
+    // console.log(`entered ${input} parsing...`);
 
     const program = parser.produceAST(input);
-    console.log(program);
+    console.log(JSON.stringify(program));
     rl.close();
   });
 }

@@ -43,7 +43,35 @@ export default class Parser {
 
   private parse_expr(): Expr {
     //parse expressions like binary expr, function calls, identifiers, literals
-    return this.parse_primary_expr();
+    return this.parse_additive_expr();
+  }
+
+  //Order of presedence:
+  //9. assignment expr
+  //8. member expr
+  //7. function call
+  //6. logical expr and or
+  //5. comparision expr > < >= <= !=
+  //4.additive expr
+  //3.multiplicative expr
+  //2.unary expr
+  //1.primary expr
+  private parse_additive_expr(): BinaryExpr {
+    let left = this.parse_primary_expr();
+    while (
+      (this.at().type == TokenType.BinaryOperator && this.at().value == "-") ||
+      this.at().value == "+"
+    ) {
+      const operator = this.eat().value;
+      const right = this.parse_primary_expr();
+      left = {
+        kind: "BinaryExpr",
+        left,
+        right,
+        operator,
+      } as BinaryExpr;
+    }
+    return left as BinaryExpr;
   }
 
   private parse_primary_expr(): Expr {
@@ -62,7 +90,9 @@ export default class Parser {
         } as NumericLiteral;
       }
       default: {
-        console.error("Unexpected token: " + JSON.stringify(this.at()));
+        console.error(
+          "Unexpected token during parsing: " + JSON.stringify(this.at()),
+        );
         process.exit(1);
       }
     }
