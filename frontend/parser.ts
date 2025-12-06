@@ -1,3 +1,9 @@
+// -----------------------------------
+// -------------     Parser         ---------
+// ------   builds the ast using the generated tokens   -----
+// ------   basic syntax to symantics conversion   ------
+// -----------------------------------
+
 import {
   type Stmt,
   type Program,
@@ -37,6 +43,12 @@ export default class Parser {
     }
   }
 
+  /**
+   * Produces an (AST) from the given source code string
+   * Tokenizes the input and parses statements until the end of the file.
+   * @param sourceCode - The raw source code
+   * @returns The generated AST as a *Program node*
+   */
   public produceAST(sourceCode: string): Program {
     console.log("Producing AST...", sourceCode);
     this.tokens = tokenize(sourceCode);

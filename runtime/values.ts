@@ -16,3 +16,5 @@ export interface NullVal extends RuntimeVal {
   type: "null";
   value: "null";
 }
+
+// more like StringVal, ObjectVal, etc

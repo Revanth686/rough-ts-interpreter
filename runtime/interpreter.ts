@@ -1,12 +1,14 @@
 // A tree walk interpreter that evaluates the AST nodes and produces runtime values.
 
 import { type RuntimeVal, type NumberVal, type NullVal } from "./values";
+import Environment from "./environment";
 
 import {
   type Stmt,
   type NumericLiteral,
   type BinaryExpr,
   type Program,
+  type Identifier,
 } from "../frontend/ast";
 
 function eval_numeric_binary_expr(
@@ -24,11 +26,11 @@ function eval_numeric_binary_expr(
   return { type: "number", value: result };
 }
 
-function evaluate_binary_expr(binop: BinaryExpr): RuntimeVal {
+function evaluate_binary_expr(binop: BinaryExpr, env: Environment): RuntimeVal {
   //TODO:
   //identifiers inside binaryExpr
-  const lhs = evaluate(binop.left) as NumberVal; //left recursive
-  const rhs = evaluate(binop.right) as NumberVal; //right recursive
+  const lhs = evaluate(binop.left, env) as NumberVal; //left recursive
+  const rhs = evaluate(binop.right, env) as NumberVal; //right recursive
 
   if (lhs.type == "number" && rhs.type == "number") {
     return eval_numeric_binary_expr(lhs, rhs, binop.operator);
@@ -38,16 +40,21 @@ function evaluate_binary_expr(binop: BinaryExpr): RuntimeVal {
   return { type: "null", value: "null" } as NullVal;
 }
 
-function evaluate_program(program: Program): RuntimeVal {
+function evaluate_program(program: Program, env: Environment): RuntimeVal {
   let lastEvaluated: RuntimeVal = { type: "null", value: "null" } as NullVal;
   for (const statement of program.body) {
-    lastEvaluated = evaluate(statement);
+    lastEvaluated = evaluate(statement, env);
   }
   //return final evaluated result
   return lastEvaluated;
 }
 
-export default function evaluate(astNode: Stmt): RuntimeVal {
+function eval_identifier(ident: Identifier, env: Environment) {
+  const val = env.lookupVar(ident.symbol);
+  return val;
+}
+
+export default function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
     case "NullLiteral":
       return { type: "null", value: "null" } as NullVal;
@@ -60,15 +67,16 @@ export default function evaluate(astNode: Stmt): RuntimeVal {
     }
 
     case "BinaryExpr": {
-      return evaluate_binary_expr(astNode as BinaryExpr);
+      return evaluate_binary_expr(astNode as BinaryExpr, env);
     }
 
     case "Program": {
-      return evaluate_program(astNode as Program);
+      return evaluate_program(astNode as Program, env);
     }
 
-    // case "BinaryExpr":{
-    // }
+    case "Identifier": {
+      return eval_identifier(astNode as Identifier, env);
+    }
 
     default: {
       console.error(
