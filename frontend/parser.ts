@@ -11,7 +11,6 @@ import {
   type BinaryExpr,
   type Identifier,
   type NumericLiteral,
-  type NullLiteral,
 } from "./ast.js";
 import { tokenize, type Token, TokenType } from "./lexer";
 
@@ -137,13 +136,14 @@ export default class Parser {
         } as NumericLiteral;
       }
 
-      case TokenType.Null: {
-        this.eat();
-        return {
-          kind: "NullLiteral",
-          value: "null",
-        } as NullLiteral;
-      }
+      // null is treated as identifier with value=null
+      // case TokenType.Null: {
+      //   this.eat();
+      //   return {
+      //     kind: "NullLiteral",
+      //     value: "null",
+      //   } as NullLiteral;
+      // }
 
       case TokenType.OpenParen: {
         this.eat(); // open paren

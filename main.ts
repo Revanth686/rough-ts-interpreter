@@ -2,14 +2,17 @@ import Parser from "./frontend/parser";
 import readline from "readline";
 import evaluate from "./runtime/interpreter";
 import Environment from "./runtime/environment";
-import { type NumberVal } from "./runtime/values";
+import { MK_NUMBER, MK_BOOL, MK_NULL } from "./runtime/values";
 
 function repl() {
   const parser = new Parser();
 
   const env = new Environment();
   //BUG: currently variable declaration is manual
-  env.declareVar("x", { value: 119, type: "number" } as NumberVal);
+  env.declareVar("x", MK_NUMBER(119));
+  env.declareVar("true", MK_BOOL(true));
+  env.declareVar("false", MK_BOOL(false));
+  env.declareVar("null", MK_NULL());
 
   console.log("\nRepl v1.0");
 

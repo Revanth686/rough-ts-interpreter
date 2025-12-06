@@ -1,6 +1,6 @@
 // A tree walk interpreter that evaluates the AST nodes and produces runtime values.
 
-import { type RuntimeVal, type NumberVal, type NullVal } from "./values";
+import { type RuntimeVal, type NumberVal, MK_NULL } from "./values";
 import Environment from "./environment";
 
 import {
@@ -37,11 +37,11 @@ function evaluate_binary_expr(binop: BinaryExpr, env: Environment): RuntimeVal {
   }
 
   //one or both null
-  return { type: "null", value: "null" } as NullVal;
+  return MK_NULL();
 }
 
 function evaluate_program(program: Program, env: Environment): RuntimeVal {
-  let lastEvaluated: RuntimeVal = { type: "null", value: "null" } as NullVal;
+  let lastEvaluated: RuntimeVal = MK_NULL();
   for (const statement of program.body) {
     lastEvaluated = evaluate(statement, env);
   }
@@ -56,9 +56,6 @@ function eval_identifier(ident: Identifier, env: Environment) {
 
 export default function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
-    case "NullLiteral":
-      return { type: "null", value: "null" } as NullVal;
-
     case "NumericLiteral": {
       return {
         type: "number",

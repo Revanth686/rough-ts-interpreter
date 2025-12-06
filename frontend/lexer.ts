@@ -12,7 +12,6 @@ export enum TokenType {
   //literal types
   Number,
   Identifier,
-  Null,
 
   //keywords
   Let,
@@ -32,7 +31,6 @@ export interface Token {
 
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
-  null: TokenType.Null,
 };
 
 //helper function to create tokens
