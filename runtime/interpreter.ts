@@ -1,7 +1,9 @@
 // A tree walk interpreter that evaluates the AST nodes and produces runtime values.
 
-import { type RuntimeVal, type NumberVal, MK_NULL } from "./values";
+import { type RuntimeVal, type NumberVal } from "./values";
 import Environment from "./environment";
+import { evaluate_program, eval_variable_declaration } from "./eval/statements";
+import { eval_binary_expr, eval_identifier } from "./eval/expressions";
 
 import {
   type Stmt,
@@ -11,58 +13,6 @@ import {
   type Identifier,
   type VarDeclaration,
 } from "../frontend/ast";
-
-function eval_numeric_binary_expr(
-  lhs: NumberVal,
-  rhs: NumberVal,
-  operator: string,
-): NumberVal {
-  let result = 0;
-  if (operator == "+") result = Number(lhs.value) + Number(rhs.value);
-  else if (operator == "-") result = Number(lhs.value) - Number(rhs.value);
-  else if (operator == "*") result = Number(lhs.value) * Number(rhs.value);
-  //TODO: handle division by zero
-  else if (operator == "/") result = Number(lhs.value) / Number(rhs.value);
-  else if (operator == "%") result = Number(lhs.value) % Number(rhs.value);
-  return { type: "number", value: result };
-}
-
-function evaluate_binary_expr(binop: BinaryExpr, env: Environment): RuntimeVal {
-  //TODO:
-  //identifiers inside binaryExpr
-  const lhs = evaluate(binop.left, env) as NumberVal; //left recursive
-  const rhs = evaluate(binop.right, env) as NumberVal; //right recursive
-
-  if (lhs.type == "number" && rhs.type == "number") {
-    return eval_numeric_binary_expr(lhs, rhs, binop.operator);
-  }
-
-  //one or both null
-  return MK_NULL();
-}
-
-function evaluate_program(program: Program, env: Environment): RuntimeVal {
-  let lastEvaluated: RuntimeVal = MK_NULL();
-  for (const statement of program.body) {
-    lastEvaluated = evaluate(statement, env);
-  }
-  //return final evaluated result
-  return lastEvaluated;
-}
-
-function eval_identifier(ident: Identifier, env: Environment) {
-  const val = env.lookupVar(ident.symbol);
-  return val;
-}
-
-function eval_variable_declaration(
-  declaration: VarDeclaration,
-  env: Environment,
-) {
-  // const value=evaluate(declaration.value??,env);
-  //  const expr = env.declareVar(declaration.identifier, declaration.value);
-  //  return expr;
-}
 
 export default function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
@@ -74,16 +24,16 @@ export default function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
     }
 
     case "BinaryExpr": {
-      return evaluate_binary_expr(astNode as BinaryExpr, env);
+      return eval_binary_expr(astNode as BinaryExpr, env);
     }
 
     case "Program": {
       return evaluate_program(astNode as Program, env);
     }
 
-    // case "VarDeclaration": {
-    //   return eval_variable_declaration(astNode, env);
-    // }
+    case "VarDeclaration": {
+      return eval_variable_declaration(astNode as VarDeclaration, env);
+    }
 
     case "Identifier": {
       return eval_identifier(astNode as Identifier, env);
