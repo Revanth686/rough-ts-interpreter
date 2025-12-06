@@ -23,7 +23,7 @@ function repl() {
 
   function interpret(input: string) {
     const program = parser.produceAST(input);
-    // console.log("program: ", JSON.stringify(program));
+    console.log("program: ", JSON.stringify(program));
 
     const interpretedVal = evaluate(program, env);
     console.log(interpretedVal);

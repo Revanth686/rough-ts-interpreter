@@ -9,6 +9,7 @@ import {
   type BinaryExpr,
   type Program,
   type Identifier,
+  type VarDeclaration,
 } from "../frontend/ast";
 
 function eval_numeric_binary_expr(
@@ -54,6 +55,15 @@ function eval_identifier(ident: Identifier, env: Environment) {
   return val;
 }
 
+function eval_variable_declaration(
+  declaration: VarDeclaration,
+  env: Environment,
+) {
+  // const value=evaluate(declaration.value??,env);
+  //  const expr = env.declareVar(declaration.identifier, declaration.value);
+  //  return expr;
+}
+
 export default function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
     case "NumericLiteral": {
@@ -71,13 +81,17 @@ export default function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
       return evaluate_program(astNode as Program, env);
     }
 
+    // case "VarDeclaration": {
+    //   return eval_variable_declaration(astNode, env);
+    // }
+
     case "Identifier": {
       return eval_identifier(astNode as Identifier, env);
     }
 
     default: {
       console.error(
-        "Unsupported AST Node Type: ",
+        "Unsupported AST Node Type in interpretation: ",
         astNode.kind,
         "Node: ",
         astNode,

@@ -14,9 +14,11 @@ export enum TokenType {
   Identifier,
 
   //keywords
-  Let,
+  bruh, // regular variable declaration
+  sudo, // const/unmutable variable declaration
   for,
 
+  Semicolon,
   Equals,
   OpenParen,
   CloseParen,
@@ -30,7 +32,8 @@ export interface Token {
 }
 
 const KEYWORDS: Record<string, TokenType> = {
-  let: TokenType.Let,
+  bruh: TokenType.bruh,
+  sudo: TokenType.sudo,
 };
 
 //helper function to create tokens
@@ -74,6 +77,8 @@ export function tokenize(sourceCode: string): Token[] {
       tokens.push(token(src.shift(), TokenType.BinaryOperator));
     } else if (src[0] == "=") {
       tokens.push(token(src.shift(), TokenType.Equals));
+    } else if (src[0] == ";") {
+      tokens.push(token(src.shift(), TokenType.Semicolon));
     } else {
       //multi-character tokens >= => let for
       if (isint(src[0])) {

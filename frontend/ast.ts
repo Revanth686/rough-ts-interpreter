@@ -5,7 +5,11 @@
 // -----------------------------------
 
 export type NodeType =
+  // statements
   | "Program"
+  | "VarDeclaration"
+  | "VarAssignment"
+  //expressions
   | "NumericLiteral"
   | "BinaryExpr"
   | "Identifier"
@@ -26,6 +30,14 @@ export interface Program extends Stmt {
 }
 
 export interface Expr extends Stmt {}
+
+//bruh x; --> x is undefined
+export interface VarDeclaration extends Stmt {
+  kind: "VarDeclaration";
+  constant: boolean;
+  identifier: string;
+  value?: Expr;
+}
 
 export interface BinaryExpr extends Expr {
   //foo + bar

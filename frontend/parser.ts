@@ -11,6 +11,7 @@ import {
   type BinaryExpr,
   type Identifier,
   type NumericLiteral,
+  type VarDeclaration,
 } from "./ast.js";
 import { tokenize, type Token, TokenType } from "./lexer";
 
@@ -34,12 +35,14 @@ export default class Parser {
       console.error(
         "Parser Error:\n",
         err,
+        "\nReceived:",
         prev,
         " - Expecting: ",
         expectedType,
       );
       process.exit(1);
     }
+    return prev;
   }
 
   /**
@@ -64,11 +67,61 @@ export default class Parser {
   private parse_stmt(): Stmt {
     //parse statments like func decl, for while loops var decl
     //skip to parse expr
-    return this.parse_expr();
+    switch (this.at().type) {
+      case TokenType.bruh:
+      case TokenType.sudo: {
+        return this.parse_var_declaration();
+      }
+      default: {
+        return this.parse_expr();
+      }
+    }
+  }
+  //bruh identifier;
+  //bruh/sudo identifier = Expr or
+  private parse_var_declaration(): Stmt {
+    if (this.at().type != TokenType.bruh && this.at().type != TokenType.sudo) {
+      throw "Variable declaration must start with keyword bruh | sudo";
+    }
+    const isConstant = this.eat().type == TokenType.sudo;
+    const ident = this.expect(
+      TokenType.Identifier,
+      "Expected Identifier name following bruh | sudo keyword",
+    ).value;
+    if (this.at().type == TokenType.Semicolon) {
+      //sudo x;
+      this.eat();
+      if (isConstant) {
+        throw "Must assign value to constant expression. No value provided";
+      }
+      return {
+        kind: "VarDeclaration",
+        identifier: ident,
+        constant: false,
+      } as VarDeclaration;
+    }
+
+    // = expression ;
+    this.expect(
+      TokenType.Equals,
+      "Expected Equals token following identifier in variable declaration",
+    );
+    const declaration = {
+      kind: "VarDeclaration",
+      identifier: ident,
+      value: this.parse_expr(),
+      constant: isConstant,
+    } as VarDeclaration;
+    this.expect(
+      TokenType.Semicolon,
+      "Variable declaration must end with semicolon",
+    );
+    return declaration;
   }
 
   private parse_expr(): Expr {
     //parse expressions like binary expr, function calls, identifiers, literals
+
     return this.parse_additive_expr();
   }
 
@@ -123,7 +176,6 @@ export default class Parser {
     //most basic expr: identifiers and literals
     const tk = this.at().type;
 
-    //TODO: handle boolean, null token
     switch (tk) {
       case TokenType.Identifier: {
         return { kind: "Identifier", symbol: this.eat().value } as Identifier;
